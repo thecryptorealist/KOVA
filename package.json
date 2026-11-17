@@ -1,0 +1,70 @@
+{
+  "name": "solana-launch-strings",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "node --env-file=.env --import tsx scripts/migrate.ts",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "probe": "node --env-file=.env --import tsx scripts/probe.ts",
+    "collector": "node --env-file=.env --import tsx scripts/collector.ts",
+    "cleanup": "node --env-file=.env --import tsx scripts/cleanup.ts",
+    "index:build": "node --env-file=.env --import tsx scripts/index.ts",
+    "index:verify": "node --env-file=.env --import tsx scripts/index.ts --verify",
+    "index:watch": "node --env-file=.env --import tsx scripts/index.ts --watch",
+    "api": "node --env-file=.env --import tsx src/api.ts",
+    "build": "tsc",
+    "stats": "node --env-file=.env --import tsx scripts/stats.ts",
+    "verify:fixtures": "node --env-file=.env --import tsx scripts/verify-fixtures.ts",
+    "test:normalization": "node --import tsx --test tests/normalize.test.ts",
+    "download:idl": "node scripts/download-idls.mjs",
+    "notify:migrate": "node --env-file=.env --import tsx scripts/notify/migrate.ts",
+    "notify:check": "node --env-file=.env --import tsx scripts/notify/check.ts",
+    "notify:status": "node --env-file=.env --import tsx scripts/notify/status.ts",
+    "notify:cleanup": "node --env-file=.env --import tsx scripts/notify/cleanup.ts",
+    "notify:run": "node --env-file=.env --import tsx scripts/notify/run.ts",
+    "notify:start": "node scripts/notify-supervise.mjs",
+    "notify:verify": "node --env-file=.env --import tsx scripts/notify/verify.ts",
+    "notify:manage": "node --env-file=.env --import tsx scripts/notify/manage.ts",
+    "metadata:recover": "node --env-file=.env --import tsx scripts/metadata-worker.ts",
+    "metadata:start": "node scripts/metadata-supervise.mjs",
+    "start": "node dist/src/api.js",
+    "start:collector": "node dist/scripts/collector.js",
+    "start:metadata": "node dist/scripts/metadata-worker.js --watch",
+    "start:indexer": "node dist/scripts/index.js --watch",
+    "start:cleanup": "node dist/scripts/cleanup.js"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "0.30.1",
+    "@solana/web3.js": "1.98.0",
+    "ipaddr.js": "2.2.0",
+    "pg": "8.13.1",
+    "ws": "8.23.0"
+  },
+  "devDependencies": {
+    "@types/bn.js": "5.1.6",
+    "@types/node": "22.10.2",
+    "@types/pg": "8.11.10",
+    "@types/ws": "8.18.1",
+    "tsx": "4.23.15",
+    "typescript": "5.7.2"
+  },
+  "exports": {
+    "./client": {
+      "types": "./dist/src/client.d.ts",
+      "import": "./dist/src/client.js"
+    },
+    "./normalize": {
+      "types": "./dist/src/normalize.d.ts",
+      "import": "./dist/src/normalize.js"
+    },
+    "./compare": {
+      "types": "./dist/src/compare.d.ts",
+      "import": "./dist/src/compare.js"
+    }
+  }
+}

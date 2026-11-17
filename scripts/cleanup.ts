@@ -1,0 +1,1 @@
+import {cleanup} from '../src/cleanup.js';import {pool} from '../src/db.js';try{console.log(JSON.stringify(await cleanup()));}catch{console.error('Cleanup failed');process.exitCode=1;}finally{await pool.end();}

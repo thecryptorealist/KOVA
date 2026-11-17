@@ -1,0 +1,6 @@
+import {stream,idl} from '../src/pump.js';import {resolveCreation,serializeEvent} from '../src/verify-creation.js';import {pool,sleep,errorCode} from '../src/db.js';
+if(!process.env.SOLANA_RPC_HTTP||!process.env.SOLANA_RPC_WS){console.error(JSON.stringify({event:'probe_failed',code:'MISSING_RPC_CONFIG'}));process.exit(1);}
+console.log(JSON.stringify({source:'official_idl',createEventFields:idl.types?.find(t=>t.name==='CreateEvent')?.type}));
+const seen=new Set<string>();let inFlight=0;
+const stop=stream(async(event,signature,slot)=>{inFlight++;try{const verified=await resolveCreation(signature,slot,event.data);seen.add(verified.variant);console.log(JSON.stringify({source:'live_transaction_verified',variants:[verified.variant],signature,slot,...verified,fields:event.fieldNames,data:serializeEvent(event.data)}));}catch(e){console.log(JSON.stringify({source:'live_unverified',signature,slot,code:errorCode(e),fields:event.fieldNames,data:serializeEvent(event.data)}));}finally{inFlight--;}},async reason=>console.log(JSON.stringify({gap:reason})));
+setTimeout(async()=>{stop();while(inFlight)await sleep(100);console.log(JSON.stringify({observedVerifiedVariants:[...seen]}));await pool.end();},Number(process.env.PROBE_SECONDS??180)*1000);

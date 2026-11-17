@@ -1,0 +1,2 @@
+import type {NotifyConfiguration} from './config.js';import type {Notifier} from './notifier.js';import {DiscordWebhook} from './discord.js';import {Telegram} from './telegram.js';
+export function createNotifier(config:NotifyConfiguration,fetcher:typeof fetch=fetch):Notifier{return config.provider==='discord'?new DiscordWebhook(config.webhookUrl,fetcher):new Telegram(config.token,config.allowed,fetcher);}

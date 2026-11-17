@@ -1,0 +1,13 @@
+import {resolvePublicHost} from './public-dns.js';
+import type {LookupAddress} from 'node:dns';
+import https from 'node:https';import {lookup} from 'node:dns/promises';import ipaddr from 'ipaddr.js';
+export function publicAddress(address:string){try{let ip=ipaddr.parse(address);if(ip.kind()==='ipv6'&&(ip as ipaddr.IPv6).isIPv4MappedAddress())ip=(ip as ipaddr.IPv6).toIPv4Address();return ip.range()==='unicast';}catch{return false;}}
+export async function fetchMetadata(uri:string,dependencies:{lookup:(host:string,options:{all:true})=>Promise<LookupAddress[]>;get:typeof https.get}={lookup:resolvePublicHost,get:https.get},timeoutMs=8000):Promise<Record<string,unknown>>{
+ const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),Math.min(timeoutMs,8000));
+ try{for(let redirects=0;redirects<=3;redirects++){
+ const url=new URL(uri);if(url.protocol!=='https:'||url.username||url.password||url.port&&url.port!=='443')throw new Error('URI refused');
+ const host=url.hostname.replace(/^\[|\]$/g,'');const addresses=await Promise.race([dependencies.lookup(host,{all:true}),new Promise<never>((_resolve,reject)=>{if(controller.signal.aborted)reject(new Error('Timeout'));else controller.signal.addEventListener('abort',()=>reject(new Error('Timeout')),{once:true});})]);if(!addresses.length||addresses.some(a=>!publicAddress(a.address)))throw new Error('Address refused');const pinned=addresses[0]!;
+ const result=await new Promise<{location?:string;json?:Record<string,unknown>}>((resolve,reject)=>{const req=dependencies.get(url,{signal:controller.signal,lookup:(_hostname,options,cb)=>options.all?cb(null,[pinned]):cb(null,pinned.address,pinned.family),headers:{Accept:'application/json','Accept-Encoding':'identity'}},res=>{if(res.statusCode&&res.statusCode>=300&&res.statusCode<400){res.destroy();resolve({location:res.headers.location});return;}if(res.statusCode!==200){res.destroy();reject(Object.assign(new Error('Metadata HTTP failure'),{code:'METADATA_HTTP_'+res.statusCode}));return;}const chunks:Buffer[]=[];let bytes=0;res.on('data',(chunk:Buffer)=>{bytes+=chunk.length;if(bytes>200_000){reject(new Error('Metadata size limit'));res.destroy();return;}chunks.push(chunk);});res.on('error',reject);res.on('end',()=>{try{const json=JSON.parse(Buffer.concat(chunks).toString('utf8'));if(!json||Array.isArray(json)||typeof json!=='object')throw new Error('Object required');resolve({json});}catch{reject(new Error('Invalid metadata JSON'));}});});req.on('error',reject);});
+ if(result.json)return result.json;if(!result.location)throw new Error('Redirect missing location');uri=new URL(result.location,url).href;
+ }throw new Error('Redirect limit');}finally{clearTimeout(timer);}
+}

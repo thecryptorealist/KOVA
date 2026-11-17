@@ -1,0 +1,1 @@
+import {Store} from '../../src/notify/store.js';import {safeCode} from '../../src/notify/policy.js';const store=new Store(process.env.DATABASE_URL??'');try{console.log(JSON.stringify({deletedTrades:await store.cleanup(),retentionDays:7}));}catch(e){console.error(JSON.stringify({code:safeCode(e)}));process.exitCode=1;}finally{await store.pool.end();}

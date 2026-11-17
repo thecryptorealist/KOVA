@@ -1,0 +1,9 @@
+# Metadata and thumbnail recovery
+
+Run `npm run metadata:recover -- --watch` beside the API. It processes pending and previously failed records without Solana RPC calls. A database advisory lock prevents two copies of this worker. Successful metadata and normalized hashes are committed together using the existing mapping and normalization rules. Name and ticker remain from the launch event. Published logo URLs are retained unchanged.
+
+IPFS gateway alternatives preserve the same CID/path. HTTP 429 triggers a gateway cooldown. Requests are serial with a two-second pause between records; unresolved records are deferred for ten minutes. No heartbeat is written to the launch collector, so metadata activity cannot suggest that live launch collection is running. The collector also uses the resilient fetcher when it is started again.
+
+The frontend loads thumbnails from `/v1/logo/:mint`. The server reads the URL from the stored launch, allows HTTPS raster images only, validates and pins public DNS addresses on every redirect, and limits downloads to 2 MB and eight seconds. SVGs are not served. Local cached responses expire after 48 hours; cache pruning runs on writes and caps disk usage at 64 MB, including encoded cache data. The browser receives a one-hour cache header. Initials remain the fallback. Failed images are not substituted with unrelated content.
+
+Local verification recovered actual metadata and served a real 100,578-byte JPEG. The second image request was served from the cache in 341 ms. Do not treat this as proof every upstream file is available. Rate limits, missing files and DNS/network outages can leave records pending. The running terminal processes are local processes, not deployed production services. Index eligibility, strict coverage rules and checker comparison behavior are unchanged.
