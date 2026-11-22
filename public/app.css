@@ -199,3 +199,4 @@ main:has(#launch-table) td .address{display:block;min-width:140px;max-width:250p
 @media(max-width:600px){.api-test .api-test-header{padding:18px;min-height:80px}.api-test .api-test-header>.button{padding:8px 10px;font-size:10px}.api-test .brand-note{display:none}.api-test main{padding-top:30px}.api-test-toolbar{align-items:stretch;flex-direction:column;gap:14px}.api-test-toolbar label{flex:auto}.api-test .panel-head>.mono{font-size:8px}.api-test #output{padding:18px;font-size:11px}}
 .api-test main{padding:52px 38px 45px}.api-test .panel{border-color:#303030}.api-test .panel-head{border-bottom-color:#303030}
 @media(max-width:600px){.api-test main{padding:30px 18px}.api-test .field-grid{grid-template-columns:1fr}}
+.api-test main{margin:0 auto}.api-test .api-test-header{flex-wrap:wrap}
