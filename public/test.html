@@ -1,1 +1,59 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Core API test</title><h1>Launch strings: plain test page</h1><p>Not a recommendation to buy, sell or size anything. Reads strings, not contracts.</p><p>No third-party resources. Comparison runs locally against the public index when available.</p><p><label>Window mode <select id="window-mode"><option value="strict">Strict 24-hour window (default)</option><option value="partial">PARTIAL WINDOW — observed coverage only</option></select></label></p><button id="status">Read status</button><button id="live">Read recent launches</button><form id="check"><p><label>Name <input name="name"></label></p><p><label>Ticker <input name="ticker"></label></p><p><label>Description <textarea name="description"></textarea></label></p><p><label>X <input name="x"></label></p><p><label>Telegram <input name="telegram"></label></p><p><label>Website <input name="website"></label></p><p><label>Logo URI <input name="logo"></label></p><button>Compare locally</button><button type="button" id="server">Compare via API</button><button type="button" id="receipt">Download receipt</button></form><pre id="output" role="status">No data loaded.</pre><script type="module" src="/test.js"></script></html>
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#030303">
+  <title>Kova — API explorer</title>
+  <link rel="icon" type="image/jpeg" href="/kova-logo.jpeg">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body class="api-test">
+  <a class="skip" href="#api-content">Skip to API explorer</a>
+  <header class="api-test-header">
+    <a class="brand" href="/#overview"><span class="brand-logo"><img src="/kova-logo.jpeg" alt="" width="60" height="60"></span> kova<span class="brand-note">SOLANA</span></a>
+    <a class="button" href="/#overview">Back to workspace <span aria-hidden="true">↗</span></a>
+  </header>
+  <main id="api-content">
+    <div class="page-head">
+      <div><div class="eyebrow">KOVA / DEVELOPER TOOLS</div><h1>API explorer.</h1><p>Inspect recorded launches and compare published strings. Read the response, explore the fields, keep your own record.</p></div>
+      <span class="badge">READ-ONLY</span>
+    </div>
+    <div class="api-test-toolbar">
+      <label for="window-mode">Comparison window<select id="window-mode"><option value="strict">Strict · 24-hour window (default)</option><option value="partial">Partial · observed coverage only</option></select></label>
+      <p>Strict mode requires a complete index. Partial results state their actual coverage. Missing data may prevent either comparison.</p>
+    </div>
+    <div class="api-test-layout">
+      <div>
+        <section class="panel">
+          <div class="panel-head"><h2>Read observations</h2><span class="mono">01 / REQUEST</span></div>
+          <div class="panel-body"><p class="field-hint">Read collector and index status, or the latest saved launches.</p><div class="form-actions"><button class="button" id="status" type="button">Read status <span aria-hidden="true">↗</span></button><button class="button" id="live" type="button">Read recent launches <span aria-hidden="true">↗</span></button></div></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><h2>Compare launch fields</h2><span class="mono">02 / COMPARE</span></div>
+          <form id="check" class="panel-body field">
+            <div class="field-grid">
+              <label>Name<input name="name" placeholder="Published token name" maxlength="20000"></label>
+              <label>Ticker<input name="ticker" placeholder="e.g. TOKEN" maxlength="20000"></label>
+              <label class="wide">Description<textarea name="description" placeholder="Paste the published description" maxlength="20000"></textarea></label>
+              <label>X / Twitter<input name="x" placeholder="Handle or profile URL" maxlength="20000"></label>
+              <label>Telegram<input name="telegram" placeholder="Handle or profile URL" maxlength="20000"></label>
+              <label class="wide">Website<input name="website" placeholder="Published website URL" maxlength="20000"></label>
+              <label class="wide">Logo URI<input name="logo" placeholder="Published image URL" maxlength="20000"></label>
+            </div>
+            <p class="field-hint">Descriptions need at least 12 normalized words. Entered links and images are not fetched.</p>
+            <div class="form-actions"><button class="button primary" type="submit">Compare locally <span aria-hidden="true">↗</span></button><button class="button" type="button" id="server">Compare via API</button><button class="button" type="button" id="receipt">Download receipt <span aria-hidden="true">↓</span></button></div>
+          </form>
+        </section>
+      </div>
+      <section class="panel api-test-response">
+        <div class="panel-head"><h2>Response</h2><span class="mono">JSON / OUTPUT</span></div>
+        <div class="api-test-response-note">Request results and errors appear here. No demonstration data is substituted.</div>
+        <pre id="output" role="status" aria-live="polite" aria-atomic="true" tabindex="0">No data loaded. Choose a request to begin.</pre>
+      </section>
+    </div>
+  </main>
+  <footer class="disclaimer"><div>Not a recommendation to buy, sell or size anything. Reads strings, not contracts.<br>No third-party resources. Local comparison runs in your browser against the public index.</div><span>KOVA / API</span></footer>
+  <script type="module" src="/test.js"></script>
+</body>
+</html>

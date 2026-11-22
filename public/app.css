@@ -180,3 +180,22 @@ main:has(#launch-table) td .address{display:block;min-width:140px;max-width:250p
 @media(max-width:760px){.copy-preview>.badge{font-size:16px;letter-spacing:1px;padding:14px 17px}}
 .touch-heading .hero-title-line{white-space:nowrap}
 @media(max-width:760px){.touch-heading h1{font-size:clamp(24px,7.5vw,45px)}}
+
+/* API explorer shares the Kova theme; its request controls remain independent. */
+.api-test .api-test-header{max-width:1480px;margin:auto;min-height:96px;padding:20px 38px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--line)}
+.api-test .brand{padding:0;font-size:32px}.api-test .brand-logo{width:44px;height:44px}.api-test .brand-logo img{width:100%;height:100%;object-fit:contain}
+.api-test main{max-width:1480px;padding-top:52px;min-height:calc(100vh - 190px)}
+.api-test .page-head h1{font-size:clamp(34px,5vw,54px);letter-spacing:-2px}.api-test .page-head p{max-width:620px;font-size:13px}
+.api-test-toolbar{display:flex;align-items:center;gap:30px;margin:32px 0;padding:22px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.api-test-toolbar label{display:grid;gap:8px;flex:0 0 300px;font-size:11px;color:var(--muted)}
+.api-test-toolbar select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:6px;background:#101010;color:var(--ink);font-size:12px;color-scheme:dark}
+.api-test-toolbar p{max-width:530px;color:var(--muted);font-size:12px;margin:0}
+.api-test-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}
+.api-test-layout>div,.api-test-response{min-width:0}.api-test .form-actions{flex-wrap:wrap}.api-test .form-actions .button{gap:14px}
+.api-test-response{position:sticky;top:24px}.api-test-response-note{padding:15px 22px;border-bottom:1px solid var(--line);font-size:11px;color:var(--muted)}
+.api-test #output{margin:0;padding:24px;min-height:420px;max-height:70vh;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.8 var(--mono);color:#d1d1d1;background:#080808;tab-size:2}
+.api-test .disclaimer{max-width:1480px;margin:auto;line-height:1.8}.api-test .skip{left:20px}
+@media(max-width:1000px){.api-test-layout{grid-template-columns:minmax(0,1fr)}.api-test-response{position:static}.api-test #output{min-height:280px}}
+@media(max-width:600px){.api-test .api-test-header{padding:18px;min-height:80px}.api-test .api-test-header>.button{padding:8px 10px;font-size:10px}.api-test .brand-note{display:none}.api-test main{padding-top:30px}.api-test-toolbar{align-items:stretch;flex-direction:column;gap:14px}.api-test-toolbar label{flex:auto}.api-test .panel-head>.mono{font-size:8px}.api-test #output{padding:18px;font-size:11px}}
+.api-test main{padding:52px 38px 45px}.api-test .panel{border-color:#303030}.api-test .panel-head{border-bottom-color:#303030}
+@media(max-width:600px){.api-test main{padding:30px 18px}.api-test .field-grid{grid-template-columns:1fr}}
