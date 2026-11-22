@@ -42,3 +42,5 @@ Run `npm run build` and `npm test`. Start compiled code with production environm
 Collector heartbeats are updated from finalized RPC progress; metadata fetching no longer refreshes them. The launch feed now includes heartbeat freshness and shows a visible historical-data warning when the collector is stale. The web health endpoint remains a process-liveness check, not proof that collection or indexing is running.
 
 The service definitions are not activated merely by pushing them to GitHub. Inspect the actual Railway project, apply the collector/metadata/indexer services, and set their required variables. Keep one collector instance running. Verify new launch timestamps, fresh collector heartbeats and current index windows on the public domain before calling the incident resolved.
+
+Strict publication also checks the latest collector session/restart boundary, including a restart after the rounded publication end. An abandoned older session and a new heartbeat cannot establish coverage across an outage. After a restart, strict publication must wait for a full eligible day; partial previews remain explicit.

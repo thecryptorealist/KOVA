@@ -11,3 +11,12 @@ test('explicit partial start narrows recorded coverage without relaxing strict r
 test('partial boundary identity does not suppress other unresolved gaps',async()=>{for(const otherGap of [false,true]){const {database}=await mockDatabase({started:'2000-01-01T23:50:00Z',gaps:otherGap});const connect=database.connect.bind(database);const wrapped={connect:async()=>{const c=await connect();return {query:async(text:string,args?:unknown[])=>{if(text.includes('AS boundary_id'))return {rows:[{boundary:new Date('2000-01-01T23:51:00Z'),boundary_id:'7'}],rowCount:1};if(text.includes('ORDER BY detected_at,id'))assert.equal(args?.[2],'7');return c.query(text,args);},release:()=>c.release()};}} as typeof database;if(otherGap)await assert.rejects(build(fixtureEnd,fixtureEnd,wrapped,'core','partial'),/unresolved collector gaps/);else assert.equal((await build(fixtureEnd,fixtureEnd,wrapped,'core','partial')).metadata.coverageSeconds,540);}});
 
 test('a recent restart allows partial coverage even when the first session is more than a day old',async()=>{const {database}=await mockDatabase();const connect=database.connect.bind(database);const wrapped={connect:async()=>{const c=await connect();return {query:async(text:string,args?:unknown[])=>text.includes('AS boundary_id')?{rows:[{boundary:new Date('2000-01-01T23:50:00Z'),boundary_id:'8'}],rowCount:1}:c.query(text,args),release:()=>c.release()};}} as typeof database;const index=await build(fixtureEnd,fixtureEnd,wrapped,'core','partial');assert.equal(index.metadata.coverageSeconds,600);assert.equal(index.metadata.mode,'partial');});
+
+// The rounded publishing end can precede the restart; old unclosed sessions must not imply coverage.
+test('strict publishing rejects a recent restart even after the rounded window end',async()=>{
+ for(const currentStart of ['2000-01-01T23:50:00Z','2000-01-02T00:05:00Z']){
+  const {database}=await mockDatabase();const connect=database.connect.bind(database);
+  const wrapped={connect:async()=>{const c=await connect();return {query:async(text:string,args?:unknown[])=>text.includes('AS current_start')?{rows:[{current_start:currentStart}],rowCount:1}:c.query(text,args),release:()=>c.release()};}} as typeof database;
+  await assert.rejects(build(fixtureEnd,fixtureEnd,wrapped),{code:'INSUFFICIENT_COVERAGE'});
+ }
+});
