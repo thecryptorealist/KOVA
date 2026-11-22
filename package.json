@@ -17,7 +17,7 @@
     "index:verify": "node --env-file=.env --import tsx scripts/index.ts --verify",
     "index:watch": "node --env-file=.env --import tsx scripts/index.ts --watch",
     "api": "node --env-file=.env --import tsx src/api.ts",
-    "build": "tsc",
+    "build": "tsc && node scripts/copy-runtime-assets.mjs && node scripts/check-production.mjs",
     "stats": "node --env-file=.env --import tsx scripts/stats.ts",
     "verify:fixtures": "node --env-file=.env --import tsx scripts/verify-fixtures.ts",
     "test:normalization": "node --import tsx --test tests/normalize.test.ts",

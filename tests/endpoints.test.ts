@@ -3,7 +3,7 @@ process.env.NODE_ENV='test';const {createServer}=await import('../src/api.js');
 test('all six API endpoints over real HTTP and typed client with MOCK database rows',async()=>{const fake=await mockDatabase();const index=await build(fixtureEnd,fixtureEnd,fake.database);fake.setArtifact(index);const server=createServer(fake.database);await new Promise<void>((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',resolve);});const addr=server.address();assert.ok(addr&&typeof addr==='object');const base=`http://127.0.0.1:${addr.port}`;const client=new CoreClient(base);try{
 assert.equal((await client.index()).contentHash,index.contentHash);console.log('MOCK DB: GET /v1/index -> 200');
 assert.equal((await client.check(fixtureFields)).results[0]?.sharing?.n,2);console.log('MOCK DB: POST /v1/check -> 200');
-assert.equal((await client.live()).launches.length,2);console.log('MOCK DB: GET /v1/live -> 200');
+const live=await client.live();assert.equal(live.launches.length,2);assert.equal(live.collection.stale,true);assert.ok(live.collection.heartbeatAgeSeconds!>120);assert.equal(Date.parse(live.collection.latestLaunchAt!),Date.parse(fixtureRows[0]!.block_time));console.log('MOCK DB: GET /v1/live -> 200');
 assert.equal((await client.deployer(fixtureRows[0]!.creator)).launches.length,1);console.log('MOCK DB: GET /v1/deployer/:address -> 200');
 assert.equal((await client.token(fixtureRows[0]!.mint)).mint,fixtureRows[0]!.mint);console.log('MOCK DB: GET /v1/token/:mint -> 200');
 assert.equal((await client.status()).gaps.length,0);console.log('MOCK DB: GET /v1/status -> 200');
