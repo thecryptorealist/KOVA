@@ -44,3 +44,5 @@ Collector heartbeats are updated from finalized RPC progress; metadata fetching 
 The service definitions are not activated merely by pushing them to GitHub. Inspect the actual Railway project, apply the collector/metadata/indexer services, and set their required variables. Keep one collector instance running. Verify new launch timestamps, fresh collector heartbeats and current index windows on the public domain before calling the incident resolved.
 
 Strict publication also checks the latest collector session/restart boundary, including a restart after the rounded publication end. An abandoned older session and a new heartbeat cannot establish coverage across an outage. After a restart, strict publication must wait for a full eligible day; partial previews remain explicit.
+
+Metadata persistence locks the launch row before writing hashes. If retention already removed that launch, both metadata paths skip it without inserting orphan hashes, counting a success, or retrying a permanent foreign-key failure. This fixes the observed `23503` retry loop during recovery after the outage.

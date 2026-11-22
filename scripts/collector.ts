@@ -1,8 +1,8 @@
 import {recordMetadataFailure} from '../src/metadata-state.js';
 import {resolveCreation} from '../src/verify-creation.js';
-import {prepareLaunch,metadataFields,metadataRetry} from '../src/collector-logic.js';
+import {prepareLaunch,metadataRetry} from '../src/collector-logic.js';
 import {cleanup} from '../src/cleanup.js';
-import {pool,retry,log,sleep,eventCounts,errorCode} from '../src/db.js';import {stream,programId} from '../src/pump.js';import {lines,type Fields} from '../src/normalize.js';import {recoverMetadata as fetchMetadata} from '../src/metadata-recovery.js';
+import {pool,retry,log,sleep,eventCounts,errorCode} from '../src/db.js';import {stream,programId} from '../src/pump.js';import {lines,type Fields} from '../src/normalize.js';import {recoverMetadata as fetchMetadata,persistMetadata} from '../src/metadata-recovery.js';
 if(!process.env.SOLANA_RPC_HTTP||!process.env.SOLANA_RPC_WS)throw new Error('RPC settings required');
 const session=await retry(async()=>{const r=await pool.query('INSERT INTO core.collector_sessions(started_at) VALUES($1) RETURNING id', [new Date()]);return r.rows[0].id;});
 await retry(()=>pool.query("INSERT INTO core.gaps(reason) VALUES('collector_start_or_restart_unverified_coverage')"));
@@ -11,7 +11,7 @@ const stop=stream(async(event,signature,slot)=>{const e=event.data;let creator=e
 const startedAt=Date.now();log('collector_started',{session,startedAt:new Date(startedAt).toISOString()});
 const metrics=setInterval(()=>log('collector_metrics',{session,runtimeSeconds:Math.floor((Date.now()-startedAt)/1000),counts:{...eventCounts}}),30000);
 let exiting=false;
-async function sweep(){while(!exiting){const r=await retry(()=>pool.query("SELECT mint,metadata_uri,metadata_attempts FROM core.launches WHERE metadata_status='pending' AND (next_metadata_attempt IS NULL OR next_metadata_attempt<=now()) ORDER BY seen_at LIMIT 20"));for(const row of r.rows){try{const json=await fetchMetadata(row.metadata_uri);const fields=metadataFields(json);await retry(async()=>{const c=await pool.connect();try{await c.query('BEGIN');await saveHashes(c,row.mint,fields);await c.query("UPDATE core.launches SET metadata_status='ok',metadata_attempts=metadata_attempts+1,fields=fields || $2::jsonb WHERE mint=$1",[row.mint,JSON.stringify(fields)]);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}});log('metadata_ok',{mint:row.mint});}catch(error){const next=metadataRetry(row.metadata_attempts);const updated=await retry(()=>recordMetadataFailure(pool,row.mint,next.attempts,next.status,next.nextAttempt));if(updated.rowCount)log(next.status==='failed'?'metadata_failed':'metadata_retry',{mint:row.mint,attempt:next.attempts,code:errorCode(error)});else log('metadata_already_recovered',{mint:row.mint});}}await sleep(5000);}}
+async function sweep(){while(!exiting){const r=await retry(()=>pool.query("SELECT mint,metadata_uri,metadata_attempts FROM core.launches WHERE metadata_status='pending' AND (next_metadata_attempt IS NULL OR next_metadata_attempt<=now()) ORDER BY seen_at LIMIT 20"));for(const row of r.rows){try{const json=await fetchMetadata(row.metadata_uri);const saved=await retry(async()=>{const c=await pool.connect();try{return await persistMetadata(c,row.mint,json);}finally{c.release();}});log(saved?'metadata_ok':'metadata_expired',{mint:row.mint});}catch(error){const next=metadataRetry(row.metadata_attempts);const updated=await retry(()=>recordMetadataFailure(pool,row.mint,next.attempts,next.status,next.nextAttempt));if(updated.rowCount)log(next.status==='failed'?'metadata_failed':'metadata_retry',{mint:row.mint,attempt:next.attempts,code:errorCode(error)});else log('metadata_already_recovered',{mint:row.mint});}}await sleep(5000);}}
 void sweep();
 const clean=()=>retry(cleanup).then(counts=>log('retention_cleanup',counts));
 void clean();const retentionTimer=setInterval(()=>{void clean();},3600000);
